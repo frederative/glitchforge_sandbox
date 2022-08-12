@@ -24,7 +24,7 @@ export function getAssets() {
   }
   let files = [];
   let f = 'nukehype2/';
-  for (let i = 1; i <= 21; i++)
+  for (let i = 1; i <= 12; i++)
     files.push(`${f}${i}.png`)
 
   let retval = randArray(files);
@@ -81,11 +81,13 @@ export async function draw(sketch, assets, raw_asset_folders) {
   HEIGHT = 2500;
 
   //Populate the features object like so, it is automatically exported. 
-  features['Dithered'] = randArray([true, false]);
+  // features['Dithered'] = randArray([true, false]);
+  features['Dithered'] = randArray([true, true]);
   features['Glitchify'] = randArray([false, false, true]);
   features['Overdot'] = randArray([false, false, true]);
   features['Blackhole'] = randArray([false, false, true]);
-  features['Base'] = randArray(['Pointillism', 'Turtle', 'Overdrive']);
+  features['Base'] = randArray(['Pointillism']);
+  // features['Base'] = randArray(['Pointillism', 'Turtle', 'Overdrive']);
 
   // placeholders for base features as they'll show up via rendering (i think)
   features['Pointillism-Mode'] = null;
@@ -102,7 +104,8 @@ export async function draw(sketch, assets, raw_asset_folders) {
     features['Pointillism-Direction'] = randArray(['left', 'right', 'up', 'down']);
     features['Pointillism-Size'] = randArray(['small', 'medium', 'large']);
     features['Pointillism-Life'] = randArray(['long', 'short', 'random']);
-    features['Pointillism-TrailOff'] = randArray([true, false]);
+    features['Pointillism-TrailOff'] = randArray([true]);
+    // features['Pointillism-TrailOff'] = randArray([true, false]);
   } else if (features['Base'] == 'Turtle') {
     features['TurtleSize'] = randArray(['small', 'large']);
     features['TurtleVarySize'] = randArray([true, false]);
@@ -143,6 +146,7 @@ export async function draw(sketch, assets, raw_asset_folders) {
     // diceFrame(DIM / 20, DIM * rainWeight, sk, sk.createGraphics(DIM, DIM), { randomX: true, minXOffset: 1 });
     console.table(features);
 
+    let firstfxmilli = Date.now();
     // draw points with circles or squares
     if (features['Base'] == 'Pointillism')
       sk = drawPoints(sk, features);
@@ -151,23 +155,31 @@ export async function draw(sketch, assets, raw_asset_folders) {
       sk = overdrive(sk, features);
     else // tuuuuurtle line drawing
       sk = turtle(sk, features);
-
+    console.log("POintillism/Turtle Time: " + (Date.now() - firstfxmilli) / 1000 + " seconds");
+    sk.saveCanvas(sk, "Pre point" + Math.floor(Math.random() * 10000), 'png');
     // black hole
+    let blackholemillli = Date.now();
     if (features['Blackhole'] === true)
       sk = blackhole(sk, features);
+    console.log("Blackhole Time: " + (Date.now() - blackholemillli) / 1000 + " seconds");
 
     // matheson's red dot feature request
+    let overdotmilli = Date.now();
     if (features['Overdot'] === true)
       sk = overdot(sk, features);
+    console.log("Overdot Time: " + (Date.now() - overdotmilli) / 1000 + " seconds");
 
     // glitch up a touch by copy/pasting regions
+    let glitchifymilli = Date.now();
     if (features['Glitchify'] === true)
       sk = glitchify2(sk, features);
+    console.log("Glitchify Time: " + (Date.now() - glitchifymilli) / 1000 + " seconds");
 
     // dither me timbers
+    let dithermilli = Date.now();
     if (features['Dithered'] === true)
       sk = dither(sk);
-
+    console.log("Dither Time: " + (Date.now() - dithermilli) / 1000 + " seconds");
     /***********IMAGE MANIPULATION ENDS HERE**********/
 
 

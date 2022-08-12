@@ -7,14 +7,16 @@ async function run() {
   console.log("Setting up sketch: ");
   let randomSeed = Math.random() + ""
   let constantSeed = "ADSFSEED"
+  console.log("SEED:  " + randomSeed)
 
   //Uncomment this to change seed with every run
-  const random = seedrandom(randomSeed);
+  // const random = seedrandom(randomSeed);
+  const random = seedrandom("0.6455769810982286");
   //Uncomment this to use the same seed each run
   // const random = seedrandom(constantSeed);
 
   const txn_hash = "ooY6b3EDUB6zprbAiSByj3MFbgkLvSlVz8GSxLC4a1Szwzf12Mw";
-  const sketchCount = 100;//100;
+  const sketchCount = 1;//100;
 
   let assetPath = "./assets/nukehype2";
   let files = [];

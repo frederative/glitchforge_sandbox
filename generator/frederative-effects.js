@@ -123,14 +123,17 @@ function drawPoint(x, y, R, gfx, _sk, dmode) {
   // else
   //   gfx.point(x, y);
 
-  // for (let _ = 0; _ < _sk.random(2, 5); _++) {
-  if (dmode == 'square')
-    gfx.square(x + _sk.random(-3, 3), y + _sk.random(-3, 3), _r);
-  else if (dmode == 'circle')
-    gfx.circle(x + _sk.random(-3, 3), y + _sk.random(-3, 3), _r);
-  else
-    gfx.point(x, y);
-  // }
+  //Reducing the number of points here is a large factor in overall reduction
+  // for (let _ = 0; _ < _sk.random(2, 8); _++) {
+  let numPoints = randArray([1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 4, 5,])
+  for (let _ = 0; _ < numPoints; _++) {
+    if (dmode == 'square')
+      gfx.square(x + _sk.random(-3, 3), y + _sk.random(-3, 3), _r);
+    else if (dmode == 'circle')
+      gfx.circle(x + _sk.random(-3, 3), y + _sk.random(-3, 3), _r);
+    else
+      gfx.point(x, y);
+  }
 }
 
 // pointillism feature
@@ -147,13 +150,17 @@ export function drawPoints(g, features) {
   // let plife = features['Pointillism-Life'];
 
   let R;
+  //increasing the sizes here means we create more "noise" 
+  //by drawing fewer circles. 
   if (_size == "small")
+    // R = g.random(2, 4) * _scale;
     R = g.random(0.5, 2) * _scale;
   else if (_size == "medium")
+    // R = g.random(5, 7) * _scale;
     R = g.random(3, 6) * _scale;
   else
     R = g.random(7, 12) * _scale;
-
+  console.log("R: " + R);
   let R2 = R * 2; // diameter
 
   g2.textAlign(g.CENTER, g.CENTER);
@@ -177,12 +184,13 @@ export function drawPoints(g, features) {
   else if (plife == 'long')
     life = g.random(12, 20) * _scale;
   console.log("Loop!")
+  g2.noStroke()
   for (let y = 0; y < g.height; y += R2) {
     for (let x = 0; x < g.width; x += R2) {
 
       let col = g.color(g.get(x, y));
       let col2 = g.color(g.get(x, y));
-      // col2.setAlpha(128);
+      col2.setAlpha(128);
       if (g.random() > 0.98) {
         g2.stroke(0);
 

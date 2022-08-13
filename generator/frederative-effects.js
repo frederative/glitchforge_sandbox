@@ -39,22 +39,20 @@ export function dither(g) {
   let referenceSize = 1000;
   let hasMaxSize = false;
   let _scale = Math.ceil(1, g.map(g.width, 0, referenceSize, 0, 1, hasMaxSize));
-  console.log("dither _scale: " + _scale)
   g.loadPixels();
   for (let y = 0; y < g.height - _scale; y++) {
     for (let x = _scale; x < g.width - _scale; x++) {
-      let currentPixelIndex = index(g, x, y)
-      let oldr = g.pixels[currentPixelIndex];
-      let oldg = g.pixels[currentPixelIndex + 1];
-      let oldb = g.pixels[currentPixelIndex + 2];
+      let oldr = g.pixels[index(g, x, y)];
+      let oldg = g.pixels[index(g, x, y) + 1];
+      let oldb = g.pixels[index(g, x, y) + 2];
 
       let newr = (DivideBy255(oldr) * 255) | 0;
       let newg = (DivideBy255(oldg) * 255) | 0;
       let newb = (DivideBy255(oldb) * 255) | 0;
 
-      g.pixels[currentPixelIndex] = newr;
-      g.pixels[currentPixelIndex + 1] = newg;
-      g.pixels[currentPixelIndex + 2] = newb;
+      g.pixels[index(g, x, y)] = newr;
+      g.pixels[index(g, x, y) + 1] = newg;
+      g.pixels[index(g, x, y) + 2] = newb;
 
       for (let _y = 1; _y <= _scale; _y++) {
         for (let _x = 1; _x <= _scale; _x++) {
@@ -115,21 +113,21 @@ export function drawShadow(g, x, y, b, c, _sk) {
 // draw circle or square with some random jitter
 function drawPoint(x, y, R, gfx, _sk, dmode) {
   let _r = _sk.random(R - R / 4, R + R / 4);
-  if (dmode == 'square') {
-    gfx.rectMode(_sk.CENTER);
-    gfx.square(x, y, _r);
-  } else if (dmode == 'circle')
-    gfx.circle(x, y, _r);
-  else
-    gfx.point(x, y);
-  let shape_r = [x + _sk.random(-3, 3), y + _sk.random(-3, 3)]
-  // for (let _ = 0; _ < _sk.random(2, 10); _++) {
+  //Don't draw the actual point - removing this
+  //saves about 10 seconds
+  // if (dmode == 'square') {
+  //   gfx.rectMode(_sk.CENTER);
+  //   gfx.square(x, y, _r);
+  // } else if (dmode == 'circle')
+  //   gfx.circle(x, y, _r);
+  // else
+  //   gfx.point(x, y);
+
+  // for (let _ = 0; _ < _sk.random(2, 5); _++) {
   if (dmode == 'square')
-    gfx.square(shape_r[0], shape_r[1], _r);
-  // gfx.square(x + _sk.random(-3, 3), y + _sk.random(-3, 3), _r);
+    gfx.square(x + _sk.random(-3, 3), y + _sk.random(-3, 3), _r);
   else if (dmode == 'circle')
-    // gfx.circle(x + _sk.random(-3, 3), y + _sk.random(-3, 3), _r);
-    gfx.circle(shape_r[0], shape_r[1], _r);
+    gfx.circle(x + _sk.random(-3, 3), y + _sk.random(-3, 3), _r);
   else
     gfx.point(x, y);
   // }
@@ -144,20 +142,17 @@ export function drawPoints(g, features) {
   let _scale = getScale(g);
 
   let _size = features['Pointillism-Size'];
-  console.log("_size: " + _size)
   let dir = features['Pointillism-Direction'];
   let dmode = features['Pointillism-Mode'];
-  console.log("dmode: " + dmode)
-  let plife = features['Pointillism-Life'];
+  // let plife = features['Pointillism-Life'];
 
   let R;
   if (_size == "small")
-    // R = g.random(0.5, 2) * _scale;
-    R = g.random(3, 5) * _scale;
+    R = g.random(0.5, 2) * _scale;
   else if (_size == "medium")
-    R = g.random(6, 8) * _scale;
+    R = g.random(3, 6) * _scale;
   else
-    R = g.random(9, 15) * _scale;
+    R = g.random(7, 12) * _scale;
 
   let R2 = R * 2; // diameter
 
@@ -173,24 +168,24 @@ export function drawPoints(g, features) {
   // setGradient(0, 0, g2.width, g2.height, g.color(0), bgcol, Y_AXIS, g2, g);
 
   g2.noStroke();
-  let pointloop = Date.now();
-  console.log("R2 increment: " + R2)
-  let life;
+  //Move life outside the loop, having constant live per smear
+  //maintains a similar effect on the granular level. 
+  let plife = features['Pointillism-Life'];
+  let life = g.random(5, 10) * _scale;
   if (plife == 'random')
     life = g.random(2, 20) * _scale;
   else if (plife == 'long')
     life = g.random(12, 20) * _scale;
-  else
-    life = g.random(5, 10) * _scale;
-  // let plife = features['Pointillism-Life'];
+  console.log("Loop!")
   for (let y = 0; y < g.height; y += R2) {
     for (let x = 0; x < g.width; x += R2) {
 
       let col = g.color(g.get(x, y));
       let col2 = g.color(g.get(x, y));
-      col2.setAlpha(g.random(180, 256));
-      if (g.random() > 0.995) {
+      // col2.setAlpha(128);
+      if (g.random() > 0.98) {
         g2.stroke(0);
+
         smearPoints.push({ R: R, x: x, y: y, life: life, olife: life });
         // }
       } else {
@@ -198,49 +193,72 @@ export function drawPoints(g, features) {
         g2.fill(col2);
       }
 
-      // console.lo .g("dmode: " + dmode)
-      drawPoint(x + g.random(0 - R, R), y + g.random(0 - R, R), R, g2, g, dmode);
+
+      drawPoint(x, y, R, g2, g, dmode);
     }
   }
-  console.log("point loop time: " + (Date.now() - pointloop) / 1000 + " seconds");
-
 
   // smear with a timeout 
   let timeout = 1000;
-  let smearPointsmilli = Date.now();
-  console.log("smearPoints length:" + smearPoints.length)
-  while (smearPoints.length > 0) {
-    for (let i = smearPoints.length - 1; i >= 0; i--) {
-      g2.stroke(g.color(0, 0, 0, g.random(10, 100)));
-      g2.fill(g.color(0, 0, 0, g.random(10, 100)));
-      let p = smearPoints[i];
-
+  //set the smear shift outside of the loop
+  //to avoid if processing for each point.
+  let shift_x = 0
+  let shift_y = 0
+  if (dir == 'left')
+    shift_x = 0 - R / 2
+  else if (dir == 'right')
+    shift_x = R / 2
+  else if (dir == 'up')
+    shift_y = 0 - R / 2
+  else
+    shift_y = R / 2
+  //process each smearpoint 1 by one to reduce context switching
+  for (let p of smearPoints) {
+    g2.stroke(g.color(0, 0, 0, g.random(10, 100)));
+    g2.fill(g.color(0, 0, 0, g.random(10, 100)));
+    while (p.life > 0 && p.x > 0 && p.x < g2.width && p.y > 0 && p.y < g2.height) {
       let _r = p.R / 2;
       if (features['Pointillism-TrailOff'] === true)
         _r = g.map(p.life, p.olife, 0, p.R / 2, 0);
 
       g2.strokeWeight(_r);
       drawPoint(p.x, p.y, _r, g2, g, dmode);
-
-      if (dir == 'left')
-        p.x -= p.R / 2
-      else if (dir == 'right')
-        p.x += p.R / 2
-      else if (dir == 'up')
-        p.y -= p.R / 2
-      else
-        p.y += p.R / 2
-
+      p.x += shift_x
+      p.y += shift_y
       p.life--;
-      if (p.x < 0 || p.x > g2.width || p.y < 0 || p.y > g2.height || p.life <= 0) smearPoints.splice(i, 1);
-    }
-    timeout--;
-    if (timeout <= 0) {
-      console.log("pointillism smear bailed out");
-      break;
     }
   }
-  console.log("smearpoints time: " + (Date.now() - smearPointsmilli) / 1000 + " seconds");
+  // while (smearPoints.length > 0) {
+  //   for (let i = smearPoints.length - 1; i >= 0; i--) {
+  //     g2.stroke(g.color(0, 0, 0, g.random(10, 100)));
+  //     g2.fill(g.color(0, 0, 0, g.random(10, 100)));
+  //     let p = smearPoints[i];
+
+  //     let _r = p.R / 2;
+  //     if (features['Pointillism-TrailOff'] === true)
+  //       _r = g.map(p.life, p.olife, 0, p.R / 2, 0);
+
+  //     g2.strokeWeight(_r);
+  //     drawPoint(p.x, p.y, _r, g2, g, dmode);
+
+  //     if (dir == 'left')
+  //       p.x -= p.R / 2
+  //     else if (dir == 'right')
+  //       p.x += p.R / 2
+  //     else if (dir == 'up')
+  //       p.y -= p.R / 2
+  //     else
+  //       p.y += p.R / 2
+
+  //     p.life--;
+  //     if (p.x < 0 || p.x > g2.width || p.y < 0 || p.y > g2.height || p.life <= 0) smearPoints.splice(i, 1);
+  //   }
+  //   timeout--;
+  //   if (timeout <= 0) {
+  //     console.log("pointillism smear bailed out");
+  //     break;
+  //   }
+  // }
 
   // overwrite the main sketch and return
   g.image(g2, 0, 0);

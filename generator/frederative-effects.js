@@ -142,6 +142,8 @@ function drawJitterShape(x, y, R, gfx, _sk, dmode, _scale = 1.0) {
   }
 }
 
+
+
 // pointillism feature
 export function drawPoints(g, features, royalties) {
   addAuthorRoyalties(AUTHOR_TEZOS_ADDRESS, royalties);
@@ -339,18 +341,31 @@ export function overdot(g, royalties) {
 
     drawShadow(g2, 0, 0, 10, g.random([g.color(255, 0, 255), g.color(0, 255, 0)]), g);
 
+    //What does this code accomplish? I didn't see any shapes, is pt_r too small?
     for (let _y2 = _y + _r; _y2 < g2.height; _y2 += g.random(1.0, 3.0) * _scale) {
       drawJitterShape(_x + g.random(-3, 3) * _scale, _y2, pt_r, g2, g, 'square');
     }
 
-    for (let _y2 = _y - _r; _y2 < _y + _r; _y2 += g.random(1.0, 3.0) * _scale) {
-      let pnum = g.map(_y2, _y - _r, _y + _r, 0.8, 0.05) * 2 * _r;
-      for (let _ = 0; _ < pnum; _++) {
-        let _x2 = g.random(_x - _r, _x + _r);
-        if (g.random() > 0.4 && circCollision(_x2, _y2, _x, _y, 1.0, _r, r_sq))
-          drawJitterShape(_x2, _y2, pt_r, g2, g, 'circle');
-      }
+    //The original loop was only drawing a some of the time,
+    //instead we can more deliberately choose exactly where 
+    //to draw the shapes by getting random points in a circle. 
+
+    //Tune the density factor to let the circle be less or more dense
+    let density_factor = g.random(.05, .2)
+    let numCircles = Math.floor(g.PI * _r * _r * density_factor)
+    while (numCircles--) {
+      let angle = g.random(0, g.TWO_PI)
+      let mag = Math.sqrt(g.random()) * _r
+      drawJitterShape(_x + g.cos(angle) * mag, _y + g.sin(angle) * mag, pt_r, g2, g, 'circle');
     }
+    // for (let _y2 = _y - _r; _y2 < _y + _r; _y2 += g.random(1.0, 3.0) * _scale) {
+    //   let pnum = g.map(_y2, _y - _r, _y + _r, 0.8, 0.05) * 2 * _r;
+    //   for (let _ = 0; _ < pnum; _++) {
+    //     let _x2 = g.random(_x - _r, _x + _r);
+    //     if (g.random() > 0.4 && circCollision(_x2, _y2, _x, _y, 1.0, _r, r_sq))
+    //       drawJitterShape(_x2, _y2, pt_r, g2, g, 'circle');
+    //   }
+    // }
   }
 
   g.image(g2, 0, 0);

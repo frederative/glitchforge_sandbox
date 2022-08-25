@@ -119,7 +119,7 @@ export function drawShadow(g, x, y, b, c, _sk) {
 };
 
 // draw circle or square with some random jitter
-function drawPoint(x, y, R, gfx, _sk, dmode, _scale = 1.0) {
+function drawJitterShape(x, y, R, gfx, _sk, dmode, _scale = 1.0) {
   let _r = _sk.random(R - R / 4, R + R / 4) * _scale / 2;
 
   //Don't draw the actual point - removing this
@@ -129,8 +129,6 @@ function drawPoint(x, y, R, gfx, _sk, dmode, _scale = 1.0) {
   //   gfx.square(x, y, _r);
   // } else if (dmode == 'circle')
   //   gfx.circle(x, y, _r);
-  // else
-  //   gfx.point(x, y);
 
   //Reducing the number of points here is a large factor in overall reduction
   // for (let _ = 0; _ < _sk.random(2, 8); _++) {
@@ -141,8 +139,6 @@ function drawPoint(x, y, R, gfx, _sk, dmode, _scale = 1.0) {
     else if (dmode == 'circle')
       gfx.ellipse(x + _sk.random(-3, 3) * _scale, y + _sk.random(-3, 3) * _scale, _r + _sk.random(-3, 3) * _scale, _r + _sk.random(-3, 3) * _scale);
     // gfx.circle(x + _sk.random(-3, 3), y + _sk.random(-3, 3), _r);
-    else
-      gfx.point(x, y);
   }
 }
 
@@ -216,7 +212,7 @@ export function drawPoints(g, features, royalties) {
       }
 
 
-      drawPoint(x, y, R, g2, g, dmode, _scale);
+      drawJitterShape(x, y, R, g2, g, dmode, _scale);
     }
   }
 
@@ -244,7 +240,7 @@ export function drawPoints(g, features, royalties) {
         _r = g.map(p.life, p.olife, 0, p.R / 2, 0);
 
       g2.strokeWeight(_r);
-      drawPoint(p.x, p.y, _r, g2, g, dmode, _scale);
+      drawJitterShape(p.x, p.y, _r, g2, g, dmode, _scale);
       p.x += shift_x
       p.y += shift_y
       p.life--;
@@ -344,7 +340,7 @@ export function overdot(g, royalties) {
     drawShadow(g2, 0, 0, 10, g.random([g.color(255, 0, 255), g.color(0, 255, 0)]), g);
 
     for (let _y2 = _y + _r; _y2 < g2.height; _y2 += g.random(1.0, 3.0) * _scale) {
-      drawPoint(_x + g.random(-3, 3) * _scale, _y2, pt_r, g2, g, 'square');
+      drawJitterShape(_x + g.random(-3, 3) * _scale, _y2, pt_r, g2, g, 'square');
     }
 
     for (let _y2 = _y - _r; _y2 < _y + _r; _y2 += g.random(1.0, 3.0) * _scale) {
@@ -352,7 +348,7 @@ export function overdot(g, royalties) {
       for (let _ = 0; _ < pnum; _++) {
         let _x2 = g.random(_x - _r, _x + _r);
         if (g.random() > 0.4 && circCollision(_x2, _y2, _x, _y, 1.0, _r, r_sq))
-          drawPoint(_x2, _y2, pt_r, g2, g, 'circle');
+          drawJitterShape(_x2, _y2, pt_r, g2, g, 'circle');
       }
     }
   }
@@ -398,7 +394,7 @@ export function overdrive(g, royalties) {
         col.setAlpha(g.random(20, 180));
       }
       g2.fill(col);
-      drawPoint(x, y, g.random(0.5, 5.0) * _scale, g2, g, g.random(['square', 'circle']));
+      drawJitterShape(x, y, g.random(0.5, 5.0) * _scale, g2, g, g.random(['square', 'circle']));
     }
   }
 
@@ -413,11 +409,11 @@ export function turtle(g, features, royalties) {
 
   let particles = [];
 
-  let numTurtles = g.random(5,30);
+  let numTurtles = g.random(5, 30);
   if (features['TurtleNumber'] == 'average')
-    numTurtles = g.random(50, 100)|0;
+    numTurtles = g.random(50, 100) | 0;
   else if (features['TurtleNumber'] == 'many')
-    numTurtles = g.random(150, 500)|0;
+    numTurtles = g.random(150, 500) | 0;
 
   for (let _ = 0; _ < numTurtles; _++) {
     let life = g.random(50, 1000);
@@ -476,7 +472,8 @@ export function turtle(g, features, royalties) {
       g2.stroke(g.color(g.get(p.x, p.y)));
 
       if (features['TurtleJagged'])
-        drawPoint(p.x, p.y, p.s, g2, g, 'point');
+        g2.point(p.x, p.y)
+      // drawPoint(p.x, p.y, p.s, g2, g, 'point');
       else
         g2.point(p.x, p.y);
 
@@ -526,15 +523,13 @@ export function blackhole(g, royalties) {
   let col = g.color(0);
   col.setAlpha(g.random(100, 220));
   g2.stroke(col);
-  let _r = 0;
-
-  for (let R = 0; R < _size * 2.0; R += g.random(0.5, 2.0) * _scale) {
+  let rStep = g.random(0.5, 2.0) * _scale
+  for (let R = 0; R < _size * 2.0; R += rStep) {
     let tstart = g.random(0, g.TWO_PI);
+    //TA - set strokeweight once per circle instead of once per dot
+    g2.strokeWeight(g.random(0.5, 2.0) * _scale);
     for (let T = tstart; T < tstart + g.TWO_PI; T += g.PI / g.random(8, 64)) {
-      g2.strokeWeight(g.random(0.5, 2.0) * _scale);
-      let x = _x + (R * g.cos(T));
-      let y = _y + (R * g.sin(T));
-      drawPoint(x, y, 1, g2, g, 'point');
+      g2.point(_x + (R * g.cos(T)), _y + (R * g.sin(T)))
     }
   }
 

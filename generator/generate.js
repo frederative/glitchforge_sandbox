@@ -1,5 +1,5 @@
 import { distancePoint2Line, getTrianglePoints, drawTopColors, processAndDisplayColorTally, getTopColorWheel } from "./util.js";
-import { calculateRoyalties } from "./royalties.js";
+// import { calculateRoyalties } from "./royalties.js";
 import { diceFrame, init as eInit } from "./effects.js";
 import { randArray, drawPoints, dither, glitchify, turtle, overdot, overdrive, blackhole } from "./frederative-effects.js";
 
@@ -25,7 +25,7 @@ export function getAssets() {
     id = "0" + id;
   }
   let files = [];
-  let f = 'nukehype2/';
+  let f = 'nukehype-final/';
   for (let i = 1; i <= 114; i++)
     files.push(`${f}${i}.png`)
 
@@ -116,7 +116,7 @@ export async function draw(sketch, assets, raw_asset_folders) {
     features['Pointillism-TrailOff'] = randArray([true, false]);
   } else if (features['Base'] == 'Turtle') {
     features['TurtleNumber'] = randArray(['few', 'average', 'many']),
-    features['TurtleSize'] = randArray(['small', 'large']);
+      features['TurtleSize'] = randArray(['small', 'large']);
     features['TurtleVarySize'] = randArray([true, false]);
     features['TurtleJagged'] = randArray([true, false]);
   }
@@ -169,11 +169,11 @@ export async function draw(sketch, assets, raw_asset_folders) {
       sk = overdrive(sk, royalties);
     else // tuuuuurtle line drawing
       sk = turtle(sk, features, royalties);
-  
+
     // black hole
     if (features['Blackhole'] === true)
       sk = blackhole(sk, features, royalties);
-  
+
     // matheson's red dot feature request
     if (features['Overdot'] === true)
       sk = overdot(sk, royalties);
@@ -182,9 +182,9 @@ export async function draw(sketch, assets, raw_asset_folders) {
     if (features['Glitchify'] === true)
       sk = glitchify(sk, features, royalties);
 
-  // dither me timbers
-  if (features['Dithered'] === true)
-    sk = dither(sk, royalties);
+    // dither me timbers
+    if (features['Dithered'] === true)
+      sk = dither(sk, royalties);
 
     /***********IMAGE MANIPULATION ENDS HERE**********/
 
@@ -206,7 +206,7 @@ export async function draw(sketch, assets, raw_asset_folders) {
     royalties = {
       "decimals": 3,
     }
-    calculateRoyalties(royalties, royalty_tally)
+    // calculateRoyalties(royalties, royalty_tally)
 
     return sketch.getCanvasDataURL(sketch);
   } catch (e) {

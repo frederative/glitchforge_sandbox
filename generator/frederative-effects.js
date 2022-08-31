@@ -1,12 +1,12 @@
 import { init } from "./effects.js";
 import { greenify } from "./util.js";
-import { addAuthorRoyalties } from "./royalties.js"
+// import { addAuthorRoyalties } from "./royalties.js"
 const AUTHOR_TEZOS_ADDRESS = "tz1VPj5VZ2oomjz2ToAMyuyP5y7ii1NgY753";
 
 // PLACEHOLDER
-// function addAuthorRoyalties() {
-//   return;
-// }
+function addAuthorRoyalties() {
+  return;
+}
 
 const Y_AXIS = 1;
 const X_AXIS = 2;
@@ -122,14 +122,6 @@ export function drawShadow(g, x, y, b, c, _sk) {
 function drawJitterShape(x, y, R, gfx, _sk, dmode, _scale = 1.0) {
   let _r = _sk.random(R - R / 4, R + R / 4) * _scale / 2;
 
-  //Don't draw the actual point - removing this
-  //saves about 10 seconds
-  // if (dmode == 'square') {
-  //   gfx.rectMode(_sk.CENTER);
-  //   gfx.square(x, y, _r);
-  // } else if (dmode == 'circle')
-  //   gfx.circle(x, y, _r);
-
   //Reducing the number of points here is a large factor in overall reduction
   // for (let _ = 0; _ < _sk.random(2, 8); _++) {
   let numPoints = randArray([1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 4, 5,])
@@ -138,11 +130,8 @@ function drawJitterShape(x, y, R, gfx, _sk, dmode, _scale = 1.0) {
       gfx.square(x + _sk.random(-3, 3) * _scale, y + _sk.random(-3, 3) * _scale, _r);
     else if (dmode == 'circle')
       gfx.ellipse(x + _sk.random(-3, 3) * _scale, y + _sk.random(-3, 3) * _scale, _r + _sk.random(-3, 3) * _scale, _r + _sk.random(-3, 3) * _scale);
-    // gfx.circle(x + _sk.random(-3, 3), y + _sk.random(-3, 3), _r);
   }
 }
-
-
 
 // pointillism feature
 export function drawPoints(g, features, royalties) {
@@ -320,40 +309,33 @@ export function overdot(g, royalties) {
     if (g.random() > 0.5)
       col = g.color(g.get(g.random(0, g.width), g.random(0, g.height)));
 
-    col.setAlpha(g.random(20, 180) | 0);
+    col.setAlpha(g.random(20, 120) | 0);
     g2.fill(col)
     g2.noStroke();
 
     let pt_r = 0.5 * _scale;
     let r_sq = (pt_r + _r) ** 2;
 
-    drawShadow(g2, 0, 0, 10, g.random([g.color(255, 0, 255), g.color(0, 255, 0)]), g);
-
-    //What does this code accomplish? I didn't see any shapes, is pt_r too small?
-    for (let _y2 = _y + _r; _y2 < g2.height; _y2 += g.random(1.0, 3.0) * _scale) {
-      drawJitterShape(_x + g.random(-3, 3) * _scale, _y2, pt_r, g2, g, 'square');
-    }
+    // drawShadow(g2, 0, 0, 10, g.random([g.color(255, 0, 255), g.color(0, 255, 0)]), g);
 
     //The original loop was only drawing a some of the time,
     //instead we can more deliberately choose exactly where 
     //to draw the shapes by getting random points in a circle. 
 
     //Tune the density factor to let the circle be less or more dense
-    let density_factor = g.random(.05, .2)
+    let density_factor = g.random(.005, .02)
     let numCircles = Math.floor(g.PI * _r * _r * density_factor)
     while (numCircles--) {
       let angle = g.random(0, g.TWO_PI)
       let mag = Math.sqrt(g.random()) * _r
+
+      // draw shadow and alpha per point to increase randomness in visuals
+      drawShadow(g2, 0, 0, 10, g.random([g.color(255, 0, 255), g.color(0, 255, 0)]), g);
+      col.setAlpha(g.random(20, 120) | 0);
+      g2.fill(col)
+
       drawJitterShape(_x + g.cos(angle) * mag, _y + g.sin(angle) * mag, pt_r, g2, g, 'circle');
     }
-    // for (let _y2 = _y - _r; _y2 < _y + _r; _y2 += g.random(1.0, 3.0) * _scale) {
-    //   let pnum = g.map(_y2, _y - _r, _y + _r, 0.8, 0.05) * 2 * _r;
-    //   for (let _ = 0; _ < pnum; _++) {
-    //     let _x2 = g.random(_x - _r, _x + _r);
-    //     if (g.random() > 0.4 && circCollision(_x2, _y2, _x, _y, 1.0, _r, r_sq))
-    //       drawJitterShape(_x2, _y2, pt_r, g2, g, 'circle');
-    //   }
-    // }
   }
 
   g.image(g2, 0, 0);

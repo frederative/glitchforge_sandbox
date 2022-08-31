@@ -162,26 +162,15 @@ export function drawPoints(g, features, royalties) {
   //increasing the sizes here means we create more "noise" 
   //by drawing fewer circles. 
   if (_size == "small")
-    // R = g.random(2, 4) * _scale;
-    R = g.random(0.5, 2) * _scale;
+    R = g.random(1.5, 3) * _scale;
   else if (_size == "medium")
-    // R = g.random(5, 7) * _scale;
     R = g.random(3, 6) * _scale;
   else
     R = g.random(7, 12) * _scale;
   console.log("R: " + R);
   let R2 = R * 2; // diameter
 
-  g2.textAlign(g.CENTER, g.CENTER);
-  g2.textFont("Courier");
-  g2.textSize(R);
-
   g.loadPixels();
-
-  // g2.background(0);
-  // let bgcol = g.color(g.get(g.random(0, g.width), g.random(0, g.height)));
-  // bgcol.setAlpha(g.random(10, 220));
-  // setGradient(0, 0, g2.width, g2.height, g.color(0), bgcol, Y_AXIS, g2, g);
 
   g2.noStroke();
   //Move life outside the loop, having constant live per smear
@@ -206,7 +195,7 @@ export function drawPoints(g, features, royalties) {
         smearPoints.push({ R: R, x: x, y: y, life: life, olife: life });
         // }
       } else {
-        let _a = g.random(0, 255) | 0;
+        let _a = g.random(40, 255) | 0;
         col.setAlpha(_a);
         col2.setAlpha(_a);
         g2.stroke(col);
@@ -331,6 +320,7 @@ export function overdot(g, royalties) {
     if (g.random() > 0.5)
       col = g.color(g.get(g.random(0, g.width), g.random(0, g.height)));
 
+    col.setAlpha(g.random(20, 180) | 0);
     g2.fill(col)
     g2.noStroke();
 

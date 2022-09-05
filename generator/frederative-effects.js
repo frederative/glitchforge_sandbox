@@ -360,26 +360,35 @@ export function overdrive(g, royalties) {
     if (timeout <= 0) break;
   }
   setGradient(0, 0, g.width, g.height, col1, col2, Y_AXIS, g2, g);
+  let yIncrement = g.random(1.0, 4.0) * _scale
+  let alphaPurple = g.color(255, 0, 255, 40)
+  let shapeAlpha = g.random(20, 180)
+  let jitterShapeMode = g.random(['square', 'circle'])
+  let jitterShapeRadius = g.random(0.5, 5.0) * _scale
+  for (let y = 0; y < g.height; y += yIncrement) {
+    // Note -> shrinking pnum is the biggest time saver
+    // so you want the smallest range possible that
+    // still looks distorted enough. The original
+    // was .13 to .05. 
+    let pnum = g.map(y, 0, g.height, 0.01, 0.05) * g.width;
 
-  for (let y = 0; y < g.height; y += g.random(1.0, 4.0) * _scale) {
-    let pnum = g.map(y, 0, g.height, 0.13, 0.05) * g.width;
-
-    let bactive = false;
-    drawShadow(g2, 0, 0, 0, 0, g);
-    if (g.random() > 0.9) {
-      bactive = true;
+    let bactive = g.random() > 0.9;
+    if (bactive) {
       drawShadow(g2, 0, 0, 10, g.color(0, 255, 0, g.random(20, 120)), g);
+    } else {
+      drawShadow(g2, 0, 0, 0, 0, g);
     }
+
     for (let _2 = 0; _2 < pnum; _2++) {
       let x = g.random(0, g.width) | 0;
       let col;
-      if (bactive) col = g.color(255, 0, 255, 40);
+      if (bactive) g2.fill(alphaPurple);
       else {
         col = g.color(g.get(x, y));
-        col.setAlpha(g.random(20, 180));
+        col.setAlpha(shapeAlpha);
+        g2.fill(col)
       }
-      g2.fill(col);
-      drawJitterShape(x, y, g.random(0.5, 5.0) * _scale, g2, g, g.random(['square', 'circle']));
+      drawJitterShape(x, y, jitterShapeRadius, g2, g, jitterShapeMode);
     }
   }
 

@@ -400,6 +400,10 @@ export function turtle(g, features, royalties) {
   else if (features['TurtleNumber'] == 'many')
     numTurtles = g.random(150, 500) | 0;
 
+  let purple = g.color(255, 0, 255)
+  let green = g.color(0, 255, 0)
+  let blue = g.color(0, 0, 255)
+  let red = g.color(255, 0, 0)
   for (let _ = 0; _ < numTurtles; _++) {
     let life = g.random(50, 1000);
 
@@ -417,10 +421,7 @@ export function turtle(g, features, royalties) {
 
     if (g.random() > 0.8) {
       c = g.random([
-        g.color(255, 0, 255),
-        g.color(0, 255, 0),
-        g.color(0, 0, 255),
-        g.color(255, 0, 0),
+        purple, green, blue, red
       ]);
       c.setAlpha(g.random(120, 220));
     }
@@ -441,21 +442,17 @@ export function turtle(g, features, royalties) {
     });
   }
 
-  let timeout = 1000;
 
   g2.stroke(0);
-  while (timeout > 0) {
-    for (let i = particles.length - 1; i >= 0; i--) {
-      let p = particles[i];
-      drawShadow(g2, 0, 0, 10, p.shadow, g);
+  for (let p of particles) {
+    drawShadow(g2, 0, 0, 10, p.shadow, g);
+    if (features['TurtleVarySize'])
+      g2.strokeWeight(p.s + (g.random([-1, 1]) * p.s / g.random(2.0, 4.0)));
+    else
+      g2.strokeWeight(p.s);
 
-      if (features['TurtleVarySize'])
-        g2.strokeWeight(p.s + (g.random([-1, 1]) * p.s / g.random(2.0, 4.0)));
-      else
-        g2.strokeWeight(p.s);
-
+    for (let l = 0; l < p.life; l++) {
       g2.stroke(g.color(g.get(p.x, p.y)));
-
       if (features['TurtleJagged'])
         g2.point(p.x, p.y)
       // drawPoint(p.x, p.y, p.s, g2, g, 'point');
@@ -479,15 +476,8 @@ export function turtle(g, features, royalties) {
           p.vx = 0;
         }
       }
-
-      p.life--;
-      if (p.life <= 0) particles.splice(i, 1);
     }
-    timeout--;
 
-    if (particles.length == 0) {
-      break;
-    }
   }
 
   g.image(g2, 0, 0);

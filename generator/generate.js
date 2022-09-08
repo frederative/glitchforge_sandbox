@@ -105,6 +105,7 @@ export async function draw(sketch, assets, raw_asset_folders) {
   features['TurtleSize'] = null;
   features['TurtleVarySize'] = null;
   features['TurtleJagged'] = null;
+  features['TurtleDither'] = null;
   features['Glitchify-Density'] = null;
   features['Glitchify-Shadows'] = null;
 
@@ -114,6 +115,7 @@ export async function draw(sketch, assets, raw_asset_folders) {
     features['Pointillism-Size'] = randArray(['small', 'medium', 'large']);
     features['Pointillism-Life'] = randArray(['long', 'short', 'random']);
     features['Pointillism-TrailOff'] = randArray([true, false]);
+
   } else if (features['Base'] == 'Turtle') {
     let turtleNum = randArray(['few', 'average', 'many']);
     features['TurtleNumber'] = turtleNum;
@@ -128,6 +130,10 @@ export async function draw(sketch, assets, raw_asset_folders) {
 
     features['TurtleVarySize'] = randArray([true, false]);
     features['TurtleJagged'] = randArray([true, false]);
+
+    features['TurtleDither'] = true;
+    if (random() > 0.8)
+      features['TurtleDither'] = false;
   }
 
   if (features['Glitchify'] === true) {
@@ -192,7 +198,7 @@ export async function draw(sketch, assets, raw_asset_folders) {
       sk = glitchify(sk, features, royalties);
 
     // dither me timbers
-    if (features['Dithered'] === true)
+    if (features['Dithered'] === true || (features['Base'] == 'Turtle' && features['TurtleDither'] === true))
       sk = dither(sk, royalties);
 
     /***********IMAGE MANIPULATION ENDS HERE**********/

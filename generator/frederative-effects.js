@@ -430,7 +430,7 @@ export function turtle(g, features, royalties) {
     if (features['TurtleSize'] == 'small')
       s = g.random(0.5, 1.0) * _scale;
     else
-      s = g.random(0.5, 5.0) * _scale;
+      s = g.random(1.0, 5.0) * _scale;
 
 
     particles.push({
@@ -481,7 +481,6 @@ export function turtle(g, features, royalties) {
         }
       }
     }
-
   }
 
   g.image(g2, 0, 0);

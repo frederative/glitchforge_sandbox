@@ -17,9 +17,7 @@ export function init(rnd, txn_hash) {
   eInit(rnd);
 }
 
-// Guaranteed to be called second (after init), to load required assets.
-// Returns a map of assets, keyname --> filename
-export function getAssets() {
+export function getGeneratorConfig(assets) {
   let id = Math.floor(Math.random() * 2 + 1);
   // if (id < 10) {
   //   id = "0" + id;
@@ -33,12 +31,17 @@ export function getAssets() {
   console.log(`image: ${retval}`)
 
   return {
-    // background: 'awaken_raw_' + id + '.png',
-    // background: id + '.jpg',
-    // background: 'nukehype/4v2.png',
-    background: retval,
+    type: 'png',
+    params: {
+      // background: 'awaken_raw_' + id + '.png',
+      // background: id + '.jpg',
+      // background: 'nukehype/4v2.png',
+      background: retval,
+    }
+
   };
 }
+
 
 // Guaranteed to be called after setup(), can build features during setup
 // Add your rarity traits and attributes to the features object
@@ -46,12 +49,14 @@ const features = {};
 export function getFeatures() {
   return features;
 }
+
 export function getMetadata() {
   return {
     "features": features,
     "royalties": royalties
   }
 }
+
 /*
   Get a random number between a and b
 */
@@ -81,7 +86,8 @@ function applyMask(source, target) {
 // txn_hash: the transaction hash that minted this nft (faked in sandbox)
 // random: a function to replace Math.random() (based on txn_hash)
 // assets: an object with preloaded image assets from `export getAssets`, keyname --> asset
-export async function draw(sketch, assets, raw_asset_folders) {
+export async function draw(sketch, assets, params) {
+  console.dir(assets);
   let startmilli = Date.now();
 
   //Fixed Canvas Size, change as needed
@@ -151,7 +157,6 @@ export async function draw(sketch, assets, raw_asset_folders) {
     console.log("Looping...");
     console.log("WIDTH, HEIGHT: ", WIDTH, HEIGHT);
     // const img_name = 'awaken_raw_' + Math.floor((random() * preload.length) + 1) + EXT;
-    const img_name = 'background';
 
     /*
      Make a copy of the raw image for reference. 
@@ -163,9 +168,12 @@ export async function draw(sketch, assets, raw_asset_folders) {
     sk.noiseDetail(8, 0.75);
     sk.pixelDensity(1);
 
-    const copyStartX = Math.floor(random() * (assets[img_name].width - WIDTH));
-    const copyStartY = Math.floor(random() * (assets[img_name].height - HEIGHT));
-    referenceGraphic.copy(assets[img_name], copyStartX, copyStartY, DIM, DIM, 0, 0, DIM, DIM);
+    let background = await sketch.loadImage('assets/'+params.background);
+
+
+    const copyStartX = Math.floor(random() * (background.width - WIDTH));
+    const copyStartY = Math.floor(random() * (background.height - HEIGHT));
+    referenceGraphic.copy(background, copyStartX, copyStartY, DIM, DIM, 0, 0, DIM, DIM);
 
     /* Copy the Reference image to the main Sketch for manipulation */
     sk.image(referenceGraphic, 0, 0);
@@ -213,7 +221,7 @@ export async function draw(sketch, assets, raw_asset_folders) {
 
 
     //Saves the image for test review: Remove from production
-    sk.saveCanvas(sk, "" + Math.floor(Math.random() * 10000), 'png');
+    // sk.saveCanvas(sk, "" + Math.floor(Math.random() * 10000), 'png');
 
     //Times how long the image takes to run
     console.log("Time: " + (Date.now() - startmilli) / 1000 + " seconds");

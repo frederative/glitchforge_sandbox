@@ -427,7 +427,7 @@ export function turtle(g, features, royalties) {
 
     let s;
     if (features['TurtleSize'] == 'small')
-      s = g.random(0.25, 1.0) * _scale;
+      s = g.random(0.5, 1.0) * _scale;
     else
       s = g.random(0.5, 5.0) * _scale;
 
@@ -468,15 +468,19 @@ export function turtle(g, features, royalties) {
       if (p.x < 0 || p.x > g2.width - 1) p.vx *= -1.0;
       if (p.y < 0 || p.y > g2.height - 1) p.vy *= -1.0;
 
+      // randomly change direction when timer runs out
+      // extra random check to avoid the 'cluttered' look 
       p.timer--;
       if (p.timer <= 0) {
         p.timer = 50;
-        if (g.random() > 0.5) {
-          p.vx = g.random([-1, 1]);
-          p.vy = 0;
-        } else {
-          p.vy = g.random([-1, 1]);
-          p.vx = 0;
+        if (g.random() > 0.65) {
+          if (g.random() > 0.5) {
+            p.vx = g.random([-1, 1]);
+            p.vy = 0;
+          } else {
+            p.vy = g.random([-1, 1]);
+            p.vx = 0;
+          }
         }
       }
 

@@ -21,9 +21,9 @@ export function init(rnd, txn_hash) {
 // Returns a map of assets, keyname --> filename
 export function getAssets() {
   let id = Math.floor(Math.random() * 2 + 1);
-  if (id < 10) {
-    id = "0" + id;
-  }
+  // if (id < 10) {
+  //   id = "0" + id;
+  // }
   let files = [];
   let f = 'nukehype-final/';
   for (let i = 1; i <= 114; i++)
@@ -115,8 +115,17 @@ export async function draw(sketch, assets, raw_asset_folders) {
     features['Pointillism-Life'] = randArray(['long', 'short', 'random']);
     features['Pointillism-TrailOff'] = randArray([true, false]);
   } else if (features['Base'] == 'Turtle') {
-    features['TurtleNumber'] = randArray(['few', 'average', 'many']),
+    let turtleNum = randArray(['few', 'average', 'many']);
+    features['TurtleNumber'] = turtleNum;
+    
+    // balance features for visibility
+    if (turtleNum == 'few')
+      features['TurtleSize'] = 'large';
+    else if (turtleNum == 'many')
+      features['TurtleSize'] = 'small';
+    else
       features['TurtleSize'] = randArray(['small', 'large']);
+
     features['TurtleVarySize'] = randArray([true, false]);
     features['TurtleJagged'] = randArray([true, false]);
   }
